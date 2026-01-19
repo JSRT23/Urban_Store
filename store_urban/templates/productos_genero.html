@@ -1,0 +1,98 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+{% block body %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>productos/{{ genero.nombre }}</title>
+    <link rel="stylesheet" href="{% static 'css/productos_generos.css' %}">
+</head>
+
+<body>
+    <h1 class="text-center">Productos para {{ genero.nombre }}</h1>
+    {% for c in categorias %}
+        {% if c.genero.id == genero.id %}
+        <h3 class="text-center my-4">{{ c.nombre }}</h3>
+
+        <section class="product-list py-2" id="{{ c.id }}">
+            {% for subc in subcategorias %}
+                {% if subc.categoria.id == c.id %}
+                <h3 class="text-center my-5">{{ subc.categoria.nombre }} {{ subc.nombre }}</h3>
+                <div class="row g-4">
+                    {% for p in variante %}
+                        {% if p.disponible and p.subcategoria.id == subc.id %}
+                            <div class="col-md-3">
+                                <div class="card product-card">
+                                    <div class="product-image">
+                                        <img src="{%if p.imagen %}{{ p.imagen.url }}{% else %}{{ p.producto.imagen_principal.url }}{% endif %}" alt="{{ p.nombre }}">
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ p.producto.nombre }}</h5>
+                                        <p class="text-muted">Categoría: {{ p.subcategoria.nombre }}</p>
+                                        <p class="fw-bold">${{ p.precio|floatformat:2|intcomma }} COP</p>
+
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button" class="btn btn-outline-dark btn-custom" data-bs-toggle="modal" data-bs-target="#modalTalla-{{ p.id }}">
+                                                <i class="fas fa-cart-plus"></i> Agregar al carrito
+                                            </button>
+                                            <a href="{% url 'detalle_producto' p.id %}" class="btn btn-outline-secondary btn-custom">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalTalla-{{ p.id }}" tabindex="-1" aria-labelledby="modalLabel-{{ p.id }}" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content shadow">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="modalLabel-{{ p.id }}">Selecciona una talla</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                  </div>
+                                  <form method="post" action="{% url 'agregar_al_carrito' %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body text-center">
+                                        <img src="{%if p.imagen %}{{ p.imagen.url }}{% else %}{{ p.producto.imagen_principal.url }}{% endif %}" alt="{{ p.nombre }}" width="300" height="300">
+                                        <input type="hidden" name="variante_id" value="{{ p.id }}">  
+                                        <p>Color: <strong>{{ p.color }}</strong></p>
+                                        <div class="mb-3">
+                                            <label for="talla" class="form-label">Seleccione una talla:</label>
+                                            <select name="variante_id" class="form-select" required> 
+                                                {% for variante in p.producto.variantes.all %}
+                                                    {% if variante.color.id == p.color.id and variante.subcategoria.id == p.subcategoria.id and variante.disponible and variante.cantidad > 0 %}
+                                                        <option value="{{ variante.id }}">{{ variante.talla }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-dark">
+                                            <i class="fas fa-cart-plus"></i> Confirmar
+                                        </button>
+                                    </div>
+                                </form>
+                                </div>
+                              </div>
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-center">No hay productos disponibles.</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </section>
+        {% endif %}
+    {% empty %}
+        <p class="text-center">No hay categorías disponibles.</p>
+    {% endfor %}
+    <br>
+</body>
+{% endblock %}

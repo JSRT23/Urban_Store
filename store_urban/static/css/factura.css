@@ -1,0 +1,88 @@
+/* Factura Container */
+.factura-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.factura-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.factura-header h1 {
+    font-size: 2.5rem;
+    color: #4CAF50;
+}
+
+.factura-header .subtitulo {
+    font-size: 1.2rem;
+    color: #777;
+    margin-top: 10px;
+}
+
+/* Factura Details */
+.factura-details {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.factura-info p {
+    font-size: 1rem;
+    margin: 8px 0;
+    color: #555;
+}
+
+.factura-info strong {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Products Table */
+.factura-products table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.factura-products th, .factura-products td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.factura-products th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.factura-products td {
+    color: #555;
+}
+
+/* Action Button */
+.action-buttons {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.action-buttons .btn-volver {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.action-buttons .btn-volver:hover {
+    background-color: #45a049;
+}

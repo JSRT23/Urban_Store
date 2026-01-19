@@ -1,0 +1,141 @@
+.checkout-profesional {
+    max-width: 1200px;
+    margin: 30px auto;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    background: #f8f9fa;
+    padding: 20px;
+}
+
+.orden-info {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.detalles-orden {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.contenido-checkout {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+/* Productos */
+.productos-lista {
+    flex: 2;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.producto {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.img-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #dee2e6;
+    border-radius: 6px;
+    margin-right: 15px;
+}
+
+.info-producto {
+    flex: 1;
+}
+
+.precio-producto {
+    text-align: right;
+    min-width: 120px;
+}
+
+/* Resumen y pago */
+.resumen-y-pago {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resumen,
+.metodo-pago {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.resumen p {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.total {
+    font-size: 18px;
+    color: #000;
+}
+
+.metodo-opcion {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.metodo-opcion input {
+    margin-right: 10px;
+}
+
+.metodo-opcion i {
+    font-size: 20px;
+}
+
+.btn-confirmar {
+    background-color: #e0a800;
+    color: rgb(0, 0, 0);
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-confirmar:hover {
+    background: #000000;
+    color: #e0a800;
+}  
+
+/* Estilo básico para el botón */
+.btn-direccion {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 10px;
+    background-color: #e0a800;  /* Fondo amarillo */
+    color: black;  /* Texto negro */
+    text-decoration: none;
+    border: 2px solid transparent;  /* Para efecto de bordes */
+    border-radius: 5px;  /* Bordes redondeados */
+    transition: background-color 0.3s, color 0.3s;  /* Transición suave */
+}
+
+/* Cambios al pasar el cursor */
+.btn-direccion:hover {
+    background-color: black;  /* Fondo negro */
+    color: #e0a800;  /* Texto amarillo */
+}

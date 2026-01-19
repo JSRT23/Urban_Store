@@ -1,0 +1,46 @@
+/* General Styles */
+body {
+    background-color: rgb(238, 236, 236);
+}
+
+.product-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+    height: 250px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.product-image img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.product-image:hover img {
+    transform: scale(1.1);
+}
+
+.btn-custom {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #000;
+    color: #fff;
+    transform: scale(1.05);
+}

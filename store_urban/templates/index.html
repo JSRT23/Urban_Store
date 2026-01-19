@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+{% block body %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Online</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<body>
+    <section class="carousel">
+
+        <div class="slides">
+            {% for oferta in ofertas %}
+               {% if oferta.mostrar %}
+                <img src="{{ oferta.img.url }}" class="slide active" alt="{{ oferta.nombre }}">
+               {% endif %}
+            {% endfor %}
+        </div>
+        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+    </section>
+
+    <div class="alert alert-warning text-center">
+        <strong>¡Envío gratis!</strong> por compras superiores a $200.000 🚚
+    </div>
+
+    <!-- -->
+    <section class="colecciones">
+        <h2><i class="fas fa-th-large"></i> Colecciones Destacadas</h2>
+        <div class="cards">
+            
+            {% for colecciones in colecciones %}
+            <div class="card">
+                {% if colecciones.mostrar %}
+                    <img src="{{ colecciones.img.url }}" alt="{{ colecciones.genero.nombre }}">
+                {% else %}
+                    <img src="">
+                {% endif %}
+                <a class="btn" href="{% url 'productos_por_genero' colecciones.genero.id %}">{{ colecciones.genero.nombre }}</a>
+            </div>
+            {% endfor %}
+           
+        </div>
+    </section>
+
+    <section class="nuevos-productos">
+        <h2><i class="fas fa-star"></i> Productos Más Nuevos</h2>
+        <div class="slider-container">
+            <button class="slider-btn prev" onclick="scrollSlider(-1)">&#10094;</button>
+            <div class="slider" id="slider-productos">
+                {% for variante in productos_nuevos %}
+                <div class="producto-card">
+                    <img src="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{{ variante.producto.imagen_principal.url }}{% endif %}" alt="{{ variante.producto.nombre }}">
+                    <div class="producto-info">
+                        <h3>{{ variante.producto.nombre }}</h3>
+                        <p class="text-muted">Horma: {{ variante.subcategoria.nombre }}</p>
+                        <p>color: {{ variante.color.nombre }}</p>
+                        <p class="text-dark">{{ variante.precio|floatformat:0|intcomma }} COP</p>
+                        <a href="{% url 'detalle_producto' variante.id %}" class="btn-ver">Ver más</a>
+                        
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+            <button class="slider-btn next" onclick="scrollSlider(1)">&#10095;</button>
+        </div>
+    </section>
+    <section class="nuevos-productos">
+         {% if not user.is_authenticated %}
+        <h2 class="text-center">Regístrate para recibir un descuento</h2>
+        <div class="text-center mb-4">
+            <p class="text-muted">¡Únete a nuestra comunidad y disfruta de un 10% de descuento en tu primera compra!</p>
+            <a href="{% url 'registro' %}" class="btn-ver">Regístrate</a>
+        </div>
+        {% endif %}
+    </section>
+
+    <script src="{% static 'js/index.js' %}"></script>
+
+</body>
+{% endblock %}
+</html>

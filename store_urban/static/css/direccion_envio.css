@@ -1,0 +1,54 @@
+body {
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+}
+
+.form-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+}
+
+.form-floating>.form-control:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-icon {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.btn-amarillo {
+    background-color: #ffc107;
+    color: white;
+    font-weight: bold;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-amarillo:hover {
+    transform: scale(1.05);
+    background-color: #e0a800;
+}
+
+.position-relative {
+    margin-bottom: 1.5rem;
+}

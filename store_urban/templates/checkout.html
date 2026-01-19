@@ -1,0 +1,125 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="es">
+{% block body %}
+<head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{% static 'css/checkout.css' %}" />
+</head>
+<body>
+<div class="checkout-profesional">
+    {% for message in messages%}
+        <div class="alert alert-{% if message.tags == "success" %}success{% elif message.tags == "error" %}danger{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    <!-- Encabezado -->
+    <h2>Checkout</h2>
+
+    <div class="orden-info">
+        <h5>Detalle de la orden</h5>
+        <div class="detalles-orden">
+            {% if request.user.is_authenticated %}
+                <p><strong>ID Cliente:</strong> {{ request.user.id|stringformat:"06d" }}</p>
+            {% else %}
+                <p><strong>Cliente:</strong> Usuario anónimo</p>
+            {% endif %}
+            <p><strong>ID Orden:</strong> {{ carrito.id|stringformat:"06d" }}</p>
+            <p><strong>Fecha:</strong> {{ fecha|date:"d/m/Y" }}</p>
+        </div>
+        <hr>
+    </div>
+
+    <div class="contenido-checkout">
+        <!-- Lista de productos -->
+        <div class="productos-lista">
+            {% for item_data in carrito.items.all %}
+            <div class="producto">
+                <div class="img-placeholder">
+                    <img src="{% if item_data.variante.imagen %}{{ item_data.variante.imagen.url }}{% else %}{{ item_data.variante.producto.imagen_principal.url }}{% endif %}" alt="{{ item_data.variante.producto.nombre }}" style="width: 50px;">
+                </div>
+                <div class="info-producto">
+                    <h4>{{ item_data.variante.producto.nombre }}</h4>
+                    <p>Color: {{ item_data.variante.color.nombre }} - Talla: {{ item_data.variante.talla.nombre }}</p>
+                    <p>Cantidad: {{ item_data.cantidad }}</p>
+                    <p>Precio unitario: ${{ item_data.variante.precio|floatformat:"0"|intcomma }}</p>
+                </div>
+                <div class="precio-producto">
+                    <p>Subtotal:</p>
+                    <p>${{ item_data.subtotal|floatformat:"0"|intcomma }}</p>
+                </div>
+            </div>
+            <hr>
+            {% empty %}
+            <p>No tienes productos en el carrito.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Resumen de pedido -->
+        <div class="resumen-y-pago">
+            <div class="resumen">
+                <h3>Resumen de Pago</h3>
+                <p>Subtotal <span>${{ sub_total|floatformat:"0"|intcomma }}</span></p>
+                <p>Envío <span>${{ costo_envio|floatformat:"0"|intcomma }}</span></p>
+                <hr>
+                <p class="total"><strong>Total</strong> <span><strong>${{ total|floatformat:"0"|intcomma }}</strong></span></p>
+            </div>
+
+            <!-- Tipo de envío -->
+            <div class="tipo-envio">
+                <h3 class="mb-4">Tipo de Envío</h3>
+                {% if direccion_envio %}
+                    <h5 class="mb-3">Envío: <strong>{{ direccion_envio.tipo_envio.nombre }}</strong></h5>
+                    <strong>{{ direccion_envio.tipo_envio.descripcion }}</strong> 
+                    <span class="text-muted">${{ direccion_envio.tipo_envio.costo|floatformat:"0"|intcomma }}</span>
+                    <br>
+                    <small class="text-secondary">
+                        Dirección: {{ direccion_envio.direccion }}, {{ direccion_envio.ciudad }} - {{ direccion_envio.departamento }}
+                    </small>
+                    {% if request.user.is_authenticated %}
+                    <form action="{% url 'editar_direccion' direccion_envio.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-direccion">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                    <p>No se ha registrado una dirección de envío.</p>
+                    <a href="{% url 'direccion_envio' %}" class="btn-direccion">
+                        <i class="fa-solid fa-plus"></i> Registrar Dirección de Envío
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Método de pago -->
+            <form method="POST" action="{% url 'confirmar_compra' %}">
+                {% csrf_token %}
+                <div class="metodo-pago">
+                    <h3>Método de Pago</h3>
+                    {% for metodo in metodos_pago %}
+                    <label class="metodo-opcion">
+                        <input type="radio" name="metodo_pago_id" value="{{ metodo.id }}" required>
+                        <i class="fa-solid fa-credit-card"></i> {{ metodo.nombre }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% if direccion_envio %}
+                    <input type="hidden" name="direccion_id" value="{{ direccion_envio.id }}">
+                {% endif %}
+                <button type="submit" class="btn-confirmar">Confirmar Compra</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+
+{% endblock %}
+</html>

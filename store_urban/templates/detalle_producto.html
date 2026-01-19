@@ -1,0 +1,172 @@
+{% extends 'layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block body %}
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle del Producto</title>
+  <link rel="stylesheet" href="{% static 'css/detalle_producto.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div class="container py-5">
+  <a href="{% url 'productos_por_genero' variante.producto.categoria.genero.id %}" class="btn btn-outline-dark mb-4">
+    <i class="fas fa-arrow-left"></i> Volver
+  </a>
+
+  <div class="row">
+    <!-- Imagen del producto -->
+    <div class="col-md-6">
+      <div class="product-image shadow">
+        <img id="imagen-producto" src="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{{ variante.producto.imagen_principal.url }}{% endif %}" alt="{{ producto.nombre }}">
+      </div>
+    </div>
+
+    <!-- Detalles del producto -->
+    <div class="col-md-6">
+      <h2 class="fw-bold mb-1">{{ producto.nombre }}</h2>
+      <p class="text-muted mb-2">Código: {{ producto.codigo }}</p>
+      <p class="lead mb-2">{{ variante.subcategoria.nombre }}</p>
+      <p class="lead mb-2">{{ producto.descripcion }}</p>
+      <h4 id="precio-producto" class="text-dark fw-bold">
+        {{ producto.precio_base|floatformat:0|intcomma }} COP
+      </h4>
+      
+      <!-- Colores disponibles -->
+      <div class="my-2">
+        <label class="form-label fw-semibold text-muted">Colores Disponibles:</label><br>
+        {% for c in colores %}
+          <span class="color-badge"
+            title="{{ c.nombre }}"style="background-color: {{ c.rgb }};" data-color="{{ c.nombre }}">
+          </span>
+        {% endfor %}
+      </div>
+
+      <!-- Tallas disponibles -->
+      <div class="my-3">
+        <label for="talla" class="form-label fw-semibold">Talla:</label>
+        <select class="form-select w-50" id="talla" required disabled>
+          <option value="" selected>Selecciona un color primero</option>
+        </select>
+        <div class="invalid-feedback">Por favor selecciona una talla.</div>
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex gap-3 mt-4">
+        <form method="POST" action="{% url 'agregar_al_carrito' %}" class="d-flex gap-3 mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="variante_id" id="variante_id" value="">
+          <button type="submit" class="btn btn-dark btn-custom" id="mostrar-alerta" disabled>
+            <i class="fas fa-cart-plus"></i> Agregar al carrito
+          </button>
+        </form>
+        {% if request.user.is_authenticated and variante.disponible %}
+        <form method="POST" action="#" class="d-flex gap-3 mt-4">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-custom" >
+            <i class="fas fa-heart"></i>Favoritos
+          </button>
+        </form>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Messages -->
+{% if messages %}
+{% for message in messages %} 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                title: '{% if message.tags == "success" %}¡Operracion Éxitosa!{% elif message.tags == "error" %}¡Operacion Fallida!{% else %}Información{% endif %}',
+                text: '{{ message }}',
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#ffc107',  // Amarillo estilo tienda
+                customClass: {
+                    popup: 'rounded-4 shadow',
+                    confirmButton: 'px-4 py-2'
+                }
+            });
+    });
+</script>
+{% endfor %}
+{% endif %}
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const colorBadges = document.querySelectorAll(".color-badge");
+  const tallaSelect = document.getElementById("talla");
+  const varianteIdField = document.getElementById("variante_id");
+  const btnAgregar = document.getElementById("mostrar-alerta");
+  const imagenProducto = document.getElementById("imagen-producto");
+  const precioProducto = document.getElementById("precio-producto");
+
+  let colorSeleccionado = null;
+
+  function actualizarURLConVariante(varianteId) {
+    const nuevaURL = `${window.location.pathname}?variante=${varianteId}`;
+    window.history.pushState({ path: nuevaURL }, '', nuevaURL);
+  }
+
+  colorBadges.forEach(badge => {
+    badge.addEventListener("click", function () {
+      colorSeleccionado = this.dataset.color;
+      const productoId = "{{ producto.id }}";
+
+      fetch(`/ajax/obtener-variante/?producto_id=${productoId}&color=${encodeURIComponent(colorSeleccionado)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.variantes && data.variantes.length > 0) {
+            tallaSelect.innerHTML = '<option value="" selected disabled>Selecciona una talla</option>';
+            tallaSelect.disabled = false;
+            btnAgregar.disabled = true;
+
+            data.variantes.forEach(variante => {
+              tallaSelect.innerHTML += `<option value="${variante.talla_id}">${variante.talla_nombre}</option>`;
+            });
+
+            const primera = data.variantes[0];
+            imagenProducto.src = primera.imagen;
+            precioProducto.textContent = `${Number(primera.precio).toLocaleString('es-CO')} COP`;
+            varianteIdField.value = primera.id;
+
+            // Actualizar la URL
+            actualizarURLConVariante(primera.id);
+          } else {
+            tallaSelect.innerHTML = '<option value="">No hay tallas disponibles</option>';
+            tallaSelect.disabled = true;
+            btnAgregar.disabled = true;
+          }
+        })
+        .catch(error => console.error("Error AJAX (color):", error));
+    });
+  });
+
+  tallaSelect.addEventListener("change", function () {
+    const tallaId = this.value;
+    const productoId = "{{ producto.id }}";
+
+    fetch(`/ajax/obtener-variante/?producto_id=${productoId}&color=${encodeURIComponent(colorSeleccionado)}&talla_id=${tallaId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.variantes && data.variantes.length > 0) {
+          const seleccionada = data.variantes[0];
+          imagenProducto.src = seleccionada.imagen;
+          precioProducto.textContent = `${Number(seleccionada.precio).toLocaleString('es-CO')} COP`;
+          varianteIdField.value = seleccionada.id;
+          btnAgregar.disabled = false;
+
+          // Actualizar la URL
+          actualizarURLConVariante(seleccionada.id);
+        }
+      })
+      .catch(error => console.error("Error AJAX (talla):", error));
+  });
+});
+</script>
+</body>
+{% endblock %}
