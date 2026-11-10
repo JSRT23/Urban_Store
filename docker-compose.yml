@@ -1,0 +1,43 @@
+# Desarrollo:  docker compose up --build   ->  http://localhost:8000
+# Levanta la base de datos (MariaDB, compatible con MySQL) y la tienda. Las migraciones se
+# aplican solas. Los datos viven en el volumen db_data; para empezar de cero: docker compose down -v
+# Panel de administración: docker compose exec web python manage.py createsuperuser
+services:
+  db:
+    image: mariadb:11.4
+    container_name: urbanstore-db
+    environment:
+      MARIADB_DATABASE: tienda
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-urbanstore}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: urbanstore-web
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      DEBUG: ${DEBUG:-True}
+      SECRET_KEY: ${SECRET_KEY:-solo-para-desarrollo-cambiala}
+      DB_NAME: tienda
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-urbanstore}
+      DB_HOST: db
+      DB_PORT: "3306"
+    volumes:
+      - ./store_urban:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:
