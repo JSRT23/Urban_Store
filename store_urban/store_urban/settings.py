@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$@tc4lp-+w$-xcqg!$+#6k3r#&v!a$wa!nl!+_yko5yw$$%2v2'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-$@tc4lp-+w$-xcqg!$+#6k3r#&v!a$wa!nl!+_yko5yw$$%2v2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
 
 
 # Application definition
@@ -85,12 +85,12 @@ AUTH_USER_MODEL = 'usuario.Usuario'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Motor de la base de datos (MySQL)
-        'NAME': 'tienda',    # Nombre de tu base de datos
-        'USER': 'root',              # Usuario de MySQL
-        'PASSWORD': 'Juan.2003',       # Contraseña de tu usuario MySQL
-        'HOST': 'localhost',                     # Si es en tu máquina local, usa 'localhost'
-        'PORT': '3306',                          # Puerto por defecto de MySQL
+        'ENGINE': 'django.db.backends.mysql',  # MySQL / MariaDB
+        'NAME': os.environ.get('DB_NAME', 'tienda'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 
